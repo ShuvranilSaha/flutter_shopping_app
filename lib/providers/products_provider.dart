@@ -44,9 +44,6 @@ class ProductsProvider with ChangeNotifier {
    }
 
   List<Product> get items {
-//    if (_showFavoriteOnly) {
-//      return _items.where((element) => element.isFavorite).toList();
-//    }
     return [..._items];
   }
 
@@ -55,15 +52,6 @@ class ProductsProvider with ChangeNotifier {
   }
 
   void addProducts(value) {
-    // _items.add(value);
     notifyListeners();
   }
-//  void showFavoritesOnly() {
-//    _showFavoriteOnly = true;
-//    notifyListeners();
-//  }
-//  void showAll() {
-//    _showFavoriteOnly = false;
-//    notifyListeners();
-//  }
 }
