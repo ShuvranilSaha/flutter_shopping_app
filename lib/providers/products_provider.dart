@@ -41,7 +41,7 @@ class ProductsProvider with ChangeNotifier {
 
   List<Product> get favoriteItems {
     return _items.where((element) => element.isFavorite).toList();
-   }
+  }
 
   List<Product> get items {
     return [..._items];
@@ -51,7 +51,31 @@ class ProductsProvider with ChangeNotifier {
     return _items.firstWhere((prod) => prod.id == id);
   }
 
-  void addProducts(value) {
+  void addProducts(Product value) {
+    final newProduct = Product(
+      id: DateTime.now().toString(),
+      title: value.title,
+      description: value.description,
+      price: value.price,
+      imageUrl: value.imageUrl,
+    );
+    print(newProduct);
+    _items.add(newProduct);
+    notifyListeners();
+  }
+
+  void updateProducts(String id, Product updatedProduct) {
+    final prodIndex = _items.indexWhere((element) => element.id == id);
+    if (prodIndex >= 0) {
+      _items[prodIndex] = updatedProduct;
+      notifyListeners();
+    } else {
+      print('Product id not available');
+    }
+  }
+
+  void deleteProduct(String productId) {
+    _items.removeWhere((element) => element.id == productId);
     notifyListeners();
   }
 }
