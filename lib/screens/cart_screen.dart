@@ -37,16 +37,7 @@ class CartScreen extends StatelessWidget {
                     ),
                     backgroundColor: Theme.of(context).primaryColor,
                   ),
-                  FlatButton(
-                    child: Text('Order Now'),
-                    onPressed: () {
-                      Provider.of<Orders>(context, listen: false).addOrder(
-                          _currentUserCart.items.values.toList(),
-                          _currentUserCart.totalAmmount);
-                      _currentUserCart.clear();
-                    },
-                    textColor: Theme.of(context).primaryColor,
-                  ),
+                  OrderButton(currentUserCart: _currentUserCart),
                 ],
               ),
             ),
@@ -66,6 +57,49 @@ class CartScreen extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  const OrderButton({
+    Key key,
+    @required Cart currentUserCart,
+  })  : _currentUserCart = currentUserCart,
+        super(key: key);
+
+  final Cart _currentUserCart;
+
+  @override
+  _OrderButtonState createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  var _isLoading = false;
+  @override
+  Widget build(BuildContext context) {
+    return FlatButton(
+      child: _isLoading
+          ? CircularProgressIndicator(
+              backgroundColor: Colors.black,
+            )
+          : Text('Order Now'),
+      onPressed: (widget._currentUserCart.totalAmmount <= 0 || _isLoading)
+          ? null
+          : () async {
+              setState(() {
+                _isLoading = true;
+              });
+              await Provider.of<Orders>(context, listen: false).addOrder(
+                widget._currentUserCart.items.values.toList(),
+                widget._currentUserCart.totalAmmount,
+              );
+              setState(() {
+                _isLoading = false;
+              });
+              widget._currentUserCart.clear();
+            },
+      textColor: Theme.of(context).primaryColor,
     );
   }
 }
