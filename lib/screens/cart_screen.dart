@@ -81,7 +81,7 @@ class _OrderButtonState extends State<OrderButton> {
     return FlatButton(
       child: _isLoading
           ? CircularProgressIndicator(
-              backgroundColor: Colors.black,
+              backgroundColor: Theme.of(context).primaryColor,
             )
           : Text('Order Now'),
       onPressed: (widget._currentUserCart.totalAmmount <= 0 || _isLoading)
