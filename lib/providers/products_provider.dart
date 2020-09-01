@@ -42,6 +42,9 @@ class ProductsProvider with ChangeNotifier {
   ];
 
   var _showFavoriteOnly = false;
+  final String authToken;
+
+  ProductsProvider(this.authToken, this._items);
 
   List<Product> get favoriteItems {
     return _items.where((element) => element.isFavorite).toList();
@@ -56,7 +59,7 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> addProducts(Product value) async {
-    const url = 'https://flutter-testing-course.firebaseio.com/products.json';
+    final url = 'https://flutter-testing-course.firebaseio.com/products.json?auth=$authToken';
     try {
       final response = await http.post(
         url,
@@ -87,7 +90,7 @@ class ProductsProvider with ChangeNotifier {
     final prodIndex = _items.indexWhere((element) => element.id == id);
     if (prodIndex >= 0) {
       final url =
-          'https://flutter-testing-course.firebaseio.com/products/$id.json';
+          'https://flutter-testing-course.firebaseio.com/products/$id.json?auth=$authToken';
       await http.patch(url,
           body: json.encode({
             'title': updatedProduct.title,
@@ -104,7 +107,7 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> deleteProduct(String productId) async {
     final url =
-        'https://flutter-testing-course.firebaseio.com/products/$productId.json';
+        'https://flutter-testing-course.firebaseio.com/products/$productId.json?auth=$authToken';
     final _existingProductIndex =
         _items.indexWhere((element) => element.id == productId);
     var _existingProduct = _items[_existingProductIndex];
@@ -120,7 +123,7 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> fetchAndSetProducts() async {
-    const url = 'https://flutter-testing-course.firebaseio.com/products.json';
+    final url = 'https://flutter-testing-course.firebaseio.com/products.json?auth=$authToken';
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
