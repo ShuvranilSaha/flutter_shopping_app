@@ -19,11 +19,11 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  Future<void> toogleFavoriteStatus() async {
+  Future<void> toogleFavoriteStatus(String token) async {
     final _oldStatus = isFavorite;
     isFavorite = !isFavorite;
     final url =
-        'https://flutter-testing-course.firebaseio.com/products/$id.json';
+        'https://flutter-testing-course.firebaseio.com/products/$id.json?auth=$token';
     try {
       final _response = await http.patch(
         url,
