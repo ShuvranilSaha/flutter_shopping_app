@@ -25,12 +25,14 @@ class Orders with ChangeNotifier {
   }
 
   final String authToken;
+  final String userId;
 
-  Orders(this.authToken, this._orders);
+  Orders(this.authToken, this.userId, this._orders);
 
   Future<void> addOrder(
       List<CartItem> cartProducts, double totalAmmount) async {
-    final url = 'https://flutter-testing-course.firebaseio.com/orders.json?auth=$authToken';
+    final url =
+        'https://flutter-testing-course.firebaseio.com/orders/$userId.json?auth=$authToken';
     final _timeStamp = DateTime.now();
     final _response = await http.post(
       url,
@@ -60,7 +62,8 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> fetchOrders() async {
-    final url = 'https://flutter-testing-course.firebaseio.com/orders.json?auth=$authToken';
+    final url =
+        'https://flutter-testing-course.firebaseio.com/orders/$userId.json?auth=$authToken';
     final _response = await http.get(url);
     final List<OrderItem> loadedOrders = [];
     final extractedData = json.decode(_response.body) as Map<String, dynamic>;
