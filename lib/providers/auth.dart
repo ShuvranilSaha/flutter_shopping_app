@@ -4,6 +4,7 @@ import '../models/http_exception.dart';
 
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Auth with ChangeNotifier {
   String _token;
@@ -12,6 +13,7 @@ class Auth with ChangeNotifier {
   Timer _authTimer;
 
   bool get isAuth {
+    print(_token != null);
     return _token != null;
   }
 
@@ -59,6 +61,16 @@ class Auth with ChangeNotifier {
       );
       _autoLogout();
       notifyListeners();
+      final prefs = await SharedPreferences.getInstance();
+      final _userData = json.encode(
+        {
+          'token': _token,
+          'userId': _userId,
+          'expiryDate': _expiryDate.toIso8601String(),
+        },
+      );
+      prefs.setString('loggedInInfo', _userData);
+      print(prefs.setString('loggedInInfo', _userData));
     } catch (error) {
       throw error;
     }
@@ -72,7 +84,28 @@ class Auth with ChangeNotifier {
     return _authenticate(email, password, 'signInWithPassword');
   }
 
-  void logOut() {
+  Future<bool> tryAutoLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey('loggedInInfo')) {
+      print('this block');
+      return false;
+    }
+    final extractedUserData =
+        json.decode(prefs.getString('loggedInInfo')) as Map<String, Object>;
+    final expiryDate = DateTime.parse(extractedUserData['expiryDate']);
+    if (expiryDate.isBefore(DateTime.now())) {
+      print('isAfter block');
+      return false;
+    }
+    _token = extractedUserData['token'];
+    _userId = extractedUserData['userId'];
+    _expiryDate = expiryDate;
+    notifyListeners();
+    _autoLogout();
+    return true;
+  }
+
+  Future<void> logOut() async {
     _token = null;
     _userId = null;
     _expiryDate = null;
@@ -81,6 +114,9 @@ class Auth with ChangeNotifier {
       _authTimer = null;
     }
     notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    // prefs.remove('userData');
+    prefs.clear();
   }
 
   void _autoLogout() {
