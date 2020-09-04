@@ -41,8 +41,6 @@ class ProductsProvider with ChangeNotifier {
     // ),
   ];
 
-  var _showFavoriteOnly = false;
-
   final String authToken;
   final String userId;
 
@@ -70,7 +68,8 @@ class ProductsProvider with ChangeNotifier {
           'title': value.title,
           'description': value.description,
           'imageUrl': value.imageUrl,
-          'price': value.price
+          'price': value.price,
+          'creatorId': userId
         }),
       );
       final newProduct = Product(
@@ -124,9 +123,11 @@ class ProductsProvider with ChangeNotifier {
     _existingProduct = null;
   }
 
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    final filterString =
+        filterByUser ? '&orderBy="creatorId"&equalTo="$userId"' : '';
     var url =
-        'https://flutter-testing-course.firebaseio.com/products.json?auth=$authToken';
+        'https://flutter-testing-course.firebaseio.com/products.json?auth=$authToken&$filterString';
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
@@ -147,8 +148,9 @@ class ProductsProvider with ChangeNotifier {
               description: prodData['description'],
               price: prodData['price'],
               imageUrl: prodData['imageUrl'],
-              isFavorite:
-                  favoriteUserData == null ? false : favoriteUserData[prodId] ?? false,
+              isFavorite: favoriteUserData == null
+                  ? false
+                  : favoriteUserData[prodId] ?? false,
             ),
           );
         },
