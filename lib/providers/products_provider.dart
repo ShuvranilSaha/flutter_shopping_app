@@ -42,9 +42,11 @@ class ProductsProvider with ChangeNotifier {
   ];
 
   var _showFavoriteOnly = false;
-  final String authToken;
 
-  ProductsProvider(this.authToken, this._items);
+  final String authToken;
+  final String userId;
+
+  ProductsProvider(this.authToken, this.userId, this._items);
 
   List<Product> get favoriteItems {
     return _items.where((element) => element.isFavorite).toList();
@@ -59,7 +61,8 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> addProducts(Product value) async {
-    final url = 'https://flutter-testing-course.firebaseio.com/products.json?auth=$authToken';
+    final url =
+        'https://flutter-testing-course.firebaseio.com/products.json?auth=$authToken';
     try {
       final response = await http.post(
         url,
@@ -67,8 +70,7 @@ class ProductsProvider with ChangeNotifier {
           'title': value.title,
           'description': value.description,
           'imageUrl': value.imageUrl,
-          'price': value.price,
-          'isFavorite': value.isFavorite
+          'price': value.price
         }),
       );
       final newProduct = Product(
@@ -90,7 +92,7 @@ class ProductsProvider with ChangeNotifier {
     final prodIndex = _items.indexWhere((element) => element.id == id);
     if (prodIndex >= 0) {
       final url =
-          'https://flutter-testing-course.firebaseio.com/products/$id.json?auth=$authToken';
+          'https://flutter-testing-course.firebaseio.com/userFavorites/$id.json?auth=$authToken';
       await http.patch(url,
           body: json.encode({
             'title': updatedProduct.title,
@@ -123,23 +125,34 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> fetchAndSetProducts() async {
-    final url = 'https://flutter-testing-course.firebaseio.com/products.json?auth=$authToken';
+    var url =
+        'https://flutter-testing-course.firebaseio.com/products.json?auth=$authToken';
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       if (extractedData == null) {
         return;
       }
+      url =
+          'https://flutter-testing-course.firebaseio.com/userFavorites/$userId.json?auth=$authToken';
+      final favoriteResponse = await http.get(url);
+      final favoriteUserData = json.decode(favoriteResponse.body);
       final List<Product> loadedProducts = [];
-      extractedData.forEach((prodId, prodData) {
-        loadedProducts.add(Product(
-            id: prodId,
-            title: prodData['title'],
-            description: prodData['description'],
-            price: prodData['price'],
-            imageUrl: prodData['imageUrl'],
-            isFavorite: prodData['isFavorite']));
-      });
+      extractedData.forEach(
+        (prodId, prodData) {
+          loadedProducts.add(
+            Product(
+              id: prodId,
+              title: prodData['title'],
+              description: prodData['description'],
+              price: prodData['price'],
+              imageUrl: prodData['imageUrl'],
+              isFavorite:
+                  favoriteUserData == null ? false : favoriteUserData[prodId] ?? false,
+            ),
+          );
+        },
+      );
       _items = loadedProducts;
       notifyListeners();
     } catch (error) {
