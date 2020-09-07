@@ -13,7 +13,6 @@ class Auth with ChangeNotifier {
   Timer _authTimer;
 
   bool get isAuth {
-    print(_token != null);
     return _token != null;
   }
 
@@ -70,7 +69,6 @@ class Auth with ChangeNotifier {
         },
       );
       prefs.setString('loggedInInfo', _userData);
-      print(prefs.setString('loggedInInfo', _userData));
     } catch (error) {
       throw error;
     }
@@ -87,14 +85,12 @@ class Auth with ChangeNotifier {
   Future<bool> tryAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('loggedInInfo')) {
-      print('this block');
       return false;
     }
     final extractedUserData =
         json.decode(prefs.getString('loggedInInfo')) as Map<String, Object>;
     final expiryDate = DateTime.parse(extractedUserData['expiryDate']);
     if (expiryDate.isBefore(DateTime.now())) {
-      print('isAfter block');
       return false;
     }
     _token = extractedUserData['token'];

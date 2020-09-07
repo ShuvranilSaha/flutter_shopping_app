@@ -124,15 +124,15 @@ class _AuthCardState extends State<AuthCard>
         curve: Curves.linear,
       ),
     );
-    _heightAnimation.addListener(() {
-      setState(() {});
-    });
+    // _heightAnimation.addListener(() {
+    //   setState(() {});
+    // });
   }
 
   @override
   void dispose() {
     super.dispose();
-    _animationController.dispose();
+    // _animationController.dispose();
   }
 
   void _showErrorDialog(String message) {
@@ -201,13 +201,13 @@ class _AuthCardState extends State<AuthCard>
     if (_authMode == AuthMode.Login) {
       setState(() {
         _authMode = AuthMode.Signup;
+        // _animationController.forward();
       });
-      _animationController.forward();
     } else {
       setState(() {
         _authMode = AuthMode.Login;
+        // _animationController.reverse();
       });
-      _animationController.reverse();
     }
   }
 
@@ -219,8 +219,9 @@ class _AuthCardState extends State<AuthCard>
         borderRadius: BorderRadius.circular(10.0),
       ),
       elevation: 8.0,
-      child: Container(
-        // height: _authMode == AuthMode.Signup ? 320 : 260,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeIn,
         height: _heightAnimation.value.height,
         constraints:
             BoxConstraints(minHeight: _authMode == AuthMode.Signup ? 320 : 260),
