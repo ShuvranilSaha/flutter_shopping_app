@@ -5,11 +5,11 @@ import 'package:shop_app/providers/products_provider.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   static const routeName = '/product-detail';
-   @override
+  @override
   Widget build(BuildContext context) {
     final productId =
         ModalRoute.of(context).settings.arguments as String; // is the id!
-    
+
     final loadedProduct = Provider.of<ProductsProvider>(
       context,
       listen: false,
@@ -24,9 +24,12 @@ class ProductDetailScreen extends StatelessWidget {
             Container(
               height: 300,
               width: double.infinity,
-              child: Image.network(
-                loadedProduct.imageUrl,
-                fit: BoxFit.cover,
+              child: Hero(
+                tag: loadedProduct.id,
+                child: Image.network(
+                  loadedProduct.imageUrl,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             SizedBox(height: 10),
@@ -53,5 +56,5 @@ class ProductDetailScreen extends StatelessWidget {
         ),
       ),
     );
-  } 
+  }
 }
